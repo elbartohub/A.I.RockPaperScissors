@@ -15,7 +15,7 @@
 ### 使用 Conda
 
 1. 建立新的 conda 環境：
-conda create -n aigame python=3.10.16
+conda create -n aigame python=3.10.16</n>
 conda activate aigame
 pip install -r requirements.txt
 
