@@ -40,10 +40,10 @@ python play_game.py
 - 按 'q' 鍵退出任何程式
 
 ## 數據收集
-數據將自動組織為以下結構：<br>
-data/<br>
-    rock/     # 揼<br>
-    paper/    # 包<br>
-    scissors/ # 剪<br>
+數據將自動組織為以下結構：<pre>
+data
+    rock/     # 揼
+    paper/    # 包
+    scissors/ # 剪</pre>
     
 每個資料夾將包含用於訓練的相應手勢圖像。
