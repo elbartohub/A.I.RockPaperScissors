@@ -3,22 +3,44 @@ from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, Rescaling
 
 def create_model():
-    model = tf.keras.Sequential([
-        tf.keras.layers.Rescaling(1./255, input_shape=(300, 300, 3)),
-        tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
-        tf.keras.layers.MaxPooling2D(2, 2),
-        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-        tf.keras.layers.MaxPooling2D(2, 2),
-        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-        tf.keras.layers.MaxPooling2D(2, 2),
-        tf.keras.layers.Flatten(),
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dropout(0.5),
-        tf.keras.layers.Dense(3, activation='softmax')
-    ])
+    inputs = tf.keras.Input(shape=(300, 300, 3))
+    x = tf.keras.layers.Rescaling(1./255)(inputs)
+    
+    # First convolution block
+    x = tf.keras.layers.Conv2D(32, (3, 3), activation='relu', padding='same')(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Conv2D(32, (3, 3), activation='relu', padding='same')(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.MaxPooling2D(2, 2)(x)
+    x = tf.keras.layers.Dropout(0.25)(x)
+    
+    # Second convolution block
+    x = tf.keras.layers.Conv2D(64, (3, 3), activation='relu', padding='same')(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Conv2D(64, (3, 3), activation='relu', padding='same')(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.MaxPooling2D(2, 2)(x)
+    x = tf.keras.layers.Dropout(0.25)(x)
+    
+    # Third convolution block
+    x = tf.keras.layers.Conv2D(128, (3, 3), activation='relu', padding='same')(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Conv2D(128, (3, 3), activation='relu', padding='same')(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.MaxPooling2D(2, 2)(x)
+    x = tf.keras.layers.Dropout(0.25)(x)
+    
+    # Dense layers
+    x = tf.keras.layers.Flatten()(x)
+    x = tf.keras.layers.Dense(512, activation='relu')(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Dropout(0.5)(x)
+    outputs = tf.keras.layers.Dense(3, activation='softmax')(x)
 
+    model = tf.keras.Model(inputs=inputs, outputs=outputs)
+    
     model.compile(
-        optimizer='adam',
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
         loss='categorical_crossentropy',
         metrics=['accuracy']
     )
@@ -26,6 +48,14 @@ def create_model():
 
 def train_model():
     try:
+        # Add data augmentation
+        data_augmentation = tf.keras.Sequential([
+            tf.keras.layers.RandomRotation(0.2),
+            tf.keras.layers.RandomZoom(0.2),
+            tf.keras.layers.RandomBrightness(0.2),
+            tf.keras.layers.RandomContrast(0.2),
+        ])
+
         # Load and prepare the data
         train_ds = tf.keras.utils.image_dataset_from_directory(
             'data',
@@ -34,7 +64,7 @@ def train_model():
             seed=123,
             image_size=(300, 300),
             batch_size=32,
-            label_mode='categorical'  # Add this line to get one-hot encoded labels
+            label_mode='categorical'
         )
 
         val_ds = tf.keras.utils.image_dataset_from_directory(
@@ -44,7 +74,13 @@ def train_model():
             seed=123,
             image_size=(300, 300),
             batch_size=32,
-            label_mode='categorical'  # Add this line to get one-hot encoded labels
+            label_mode='categorical'
+        )
+
+        # Apply data augmentation to training data
+        train_ds = train_ds.map(
+            lambda x, y: (data_augmentation(x, training=True), y),
+            num_parallel_calls=tf.data.AUTOTUNE
         )
 
         # Configure dataset for performance
@@ -55,14 +91,21 @@ def train_model():
         # Create and train the model
         model = create_model()
         
+        # Add early stopping to prevent overfitting
+        early_stopping = tf.keras.callbacks.EarlyStopping(
+            monitor='val_accuracy',
+            patience=5,
+            restore_best_weights=True
+        )
+        
         history = model.fit(
             train_ds,
             validation_data=val_ds,
-            epochs=20
+            epochs=50,  # Increased epochs
+            callbacks=[early_stopping]
         )
         
-        # Save the model
-        model.save('rps_model.h5')
+        model.save('model/rock_paper_scissors_model.keras')
         print("Model training completed and saved successfully!")
         
     except Exception as e:
