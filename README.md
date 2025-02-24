@@ -14,10 +14,10 @@
 
 ### 使用 Conda
 
-1. 建立新的 conda 環境：
-conda create -n aigame python=3.10.16</n>
-conda activate aigame
-pip install -r requirements.txt
+1. 建立新的 conda 環境：<br>
+conda create -n aigame python=3.10.16<br>
+conda activate aigame<br>
+pip install -r requirements.txt<br>
 
 ## 專案結構
 - collect_data.py ：使用網絡攝像頭收集訓練數據的腳本
