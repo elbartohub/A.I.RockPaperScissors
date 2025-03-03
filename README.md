@@ -21,6 +21,10 @@ conda create -n aigame python=3.10.16<br>
 conda activate aigame<br>
 pip install -r requirements.txt<br>
 
+## Optional 分析模型
+pip install matplotlib scikit-learn seaborn<br>
+
+
 ## 專案結構
 - collect_data.py ：使用網絡攝像頭收集訓練數據的腳本
 - train_model.py ：神經網絡模型訓練腳本
