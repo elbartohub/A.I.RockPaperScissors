@@ -1,3 +1,5 @@
+<img src="https://github.com/elbartohub/A.I.RockPaperScissors/blob/main/prediction_samples.png">
+
 # 包剪揼 AI 遊戲
 
 一個使用電腦視覺和深度學習的即時包剪揼遊戲。
