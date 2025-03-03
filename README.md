@@ -35,7 +35,7 @@ pip install matplotlib scikit-learn seaborn<br>
 python collect_data.py
 
 2. 訓練模型：
-python train_model.py
+python train_with_transfer_learning.py --high-res
 
 3. 開始遊戲:
 python play_game.py
