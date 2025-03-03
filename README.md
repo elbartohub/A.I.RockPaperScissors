@@ -53,3 +53,6 @@ data
     scissors/ # 剪</pre>
     
 每個資料夾將包含用於訓練的相應手勢圖像。
+
+<img src="https://github.com/elbartohub/A.I.RockPaperScissors/blob/main/training_history.png">
+
